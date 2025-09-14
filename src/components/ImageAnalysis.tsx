@@ -1,8 +1,8 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Camera, AlertCircle, CheckCircle } from "lucide-react";
+import { Upload, Camera, AlertCircle, CheckCircle, Video, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupabaseUser } from '@supabase/supabase-js';
@@ -25,6 +25,9 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -36,7 +39,52 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
       }
     };
     getCurrentUser();
-  }, []);
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+
+  const openCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setStream(mediaStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (error) {
+      console.error("Error accessing camera:", error);
+      toast({
+        title: "Camera Error",
+        description: "Could not access the camera. Please check permissions.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const captureImage = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext("2d");
+      if (context) {
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const file = new File([blob], "capture.png", { type: "image/png" });
+            setSelectedFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+            stream?.getTracks().forEach(track => track.stop());
+            setStream(null);
+          }
+        });
+      }
+    }
+  };
 
   // Mock disease database based on filename
   const diseaseDatabase = {
@@ -273,7 +321,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
                 id="image-upload"
               />
               <label htmlFor="image-upload" className="cursor-pointer">
-                {!previewUrl ? (
+                {!previewUrl && !stream ? (
                   <>
                     <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p className="text-muted-foreground mb-2">
@@ -293,10 +341,26 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
                       }
                     </p>
                   </>
+                ) : stream ? (
+                  <video ref={videoRef} autoPlay className="w-full h-48 object-cover rounded-lg" />
                 ) : (
                   <img src={previewUrl} alt="Preview" className="max-w-full h-48 object-cover rounded-lg" />
                 )}
               </label>
+              <canvas ref={canvasRef} className="hidden"></canvas>
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={openCamera} variant="outline" className="w-full">
+                <Video className="h-5 w-5 mr-2" />
+                {language === "en" ? "Open Camera" : "ക്യാമറ തുറക്കുക"}
+              </Button>
+              {stream && (
+                <Button onClick={captureImage} className="w-full">
+                  <Zap className="h-5 w-5 mr-2" />
+                  {language === "en" ? "Capture" : "ചിത്രം എടുക്കുക"}
+                </Button>
+              )}
             </div>
 
             <Button 
@@ -307,7 +371,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
               {isAnalyzing ? (
                 language === "en" ? "Analyzing..." : language === "ml" ? "വിശകലനം ചെയ്യുന്നു..." : "विश्लेषण कर रहे हैं..."
               ) : (
-                language === "en" ? "Analyze Image" : language === "ml" ? "ചിത्रം വിശകലനം ചെയ്യുക" : "छवि का विश्लेषण करें"
+                language === "en" ? "Analyze Image" : language === "ml" ? "ചിത്രം വിശകലനം ചെയ്യുക" : "छवि का विश्लेषण करें"
               )}
             </Button>
 
@@ -342,7 +406,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
                   {language === "en" 
                     ? "Upload an image to get crop disease analysis"
                     : language === "ml"
-                      ? "വിള രോഗ വിശകലനത്തിനായി ഒരു ചിത্രം അപ്‌ലോഡ് ചെയ്യുക"
+                      ? "വിള രോഗ വിശകലനത്തിനായി ഒരു ചിത്രം അപ്‌ലോഡ് ചെയ്യുക"
                       : "फसल रोग विश्लेषण के लिए एक छवि अपलोड करें"
                   }
                 </p>

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut, Menu, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/hooks/useLanguage";
 import { LanguageSelector } from "@/components/ui/language-selector";
@@ -19,8 +19,8 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { WeatherSection } from "@/components/WeatherSection";
 import { MarketPriceSection } from "@/components/MarketPriceSection";
 import { GetStartedSection } from "@/components/GetStartedSection";
-import { ChatInputArea } from "@/components/ChatInputArea";
 import agrisageLogo from "@/assets/kerala-agrisage-logo.jpg";
+import { Message } from "@/App";
 
 interface Profile {
   full_name: string | null;
@@ -29,7 +29,12 @@ interface Profile {
   primary_crop: string | null;
 }
 
-const DashboardPage = () => {
+interface DashboardPageProps {
+  messages: Message[];
+  addMessage: (message: Message) => void;
+}
+
+const DashboardPage = ({ messages, addMessage }: DashboardPageProps) => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -37,10 +42,19 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { language, t } = useLanguage();
   const isMobile = useIsMobile();
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("chat")) {
+      setActiveTab("chat");
+    } else if (params.get("image")) {
+      setActiveTab("image");
+    }
+  }, [location.search]);
 
   useEffect(() => {
     // Set up auth state listener
@@ -113,20 +127,7 @@ const DashboardPage = () => {
 
   const handleQuestionClick = (question: string) => {
     setActiveTab("chat");
-    // TODO: Pass the question to ChatInterface
-  };
-
-  const handleSendMessage = (message: string) => {
-    setActiveTab("chat");
-    // TODO: Pass the message to ChatInterface
-  };
-
-  const handleImageUpload = () => {
-    setActiveTab("image");
-  };
-
-  const handleVoiceInput = () => {
-    // TODO: Implement voice input
+    addMessage({ type: "user", content: question });
   };
 
   if (loading) {
@@ -146,7 +147,7 @@ const DashboardPage = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-kerala-light/20">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-kerala-light/20 h-screen overflow-hidden">
         {/* Sidebar */}
         <AppSidebar 
           onSignOut={handleSignOut} 
@@ -198,7 +199,7 @@ const DashboardPage = () => {
           </header>
 
           {/* Content Area */}
-          <main className="flex-1 overflow-auto pb-24">
+          <main className="flex-1 pb-24">
             <div className="p-4 space-y-6">
               {activeTab === "dashboard" && (
                 <>
@@ -209,7 +210,7 @@ const DashboardPage = () => {
               )}
               
               {activeTab === "chat" && (
-                <ChatInterface language={language} />
+                <ChatInterface messages={messages} />
               )}
               
               {activeTab === "image" && (
@@ -221,13 +222,6 @@ const DashboardPage = () => {
               )}
             </div>
           </main>
-
-          {/* Chat Input Area */}
-          <ChatInputArea
-            onSendMessage={handleSendMessage}
-            onImageUpload={handleImageUpload}
-            onVoiceInput={handleVoiceInput}
-          />
         </div>
       </div>
     </SidebarProvider>
