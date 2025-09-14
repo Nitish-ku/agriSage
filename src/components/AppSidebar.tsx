@@ -32,7 +32,7 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProps) {
-  const { state } = useSidebar();
+  const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
   const { language, t } = useLanguage();
   const navigate = useNavigate();
 
@@ -84,7 +84,7 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
+    <Sidebar collapsible={isMobile ? "offcanvas" : "icon"}>
       <SidebarContent>
         {/* Main Navigation */}
         <SidebarGroup>
@@ -94,6 +94,8 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton 
                     asChild
+                    size="lg"
+                    tooltip={item.title}
                     className={isActive(item.id) ? "bg-kerala-primary text-white" : ""}
                   >
                     <button 
@@ -130,7 +132,7 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
             <SidebarMenu>
               {secondaryItems.map((item) => (
                 <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild size="lg" tooltip={item.title}>
                     <button 
                       onClick={item.action}
                       className="w-full flex items-center gap-2 p-2 hover:bg-muted"
@@ -144,7 +146,7 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
 
               {/* Logout */}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild size="lg" tooltip={language === "en" ? "Logout" : "ലോഗൗട്ട്"}>
                   <button 
                     onClick={onSignOut}
                     className="w-full flex items-center gap-2 p-2 hover:bg-red-50 hover:text-red-600"

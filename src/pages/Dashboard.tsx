@@ -172,7 +172,7 @@ const DashboardPage = ({ messages, addMessage, activeTab }: DashboardPageProps) 
   };
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-2 sm:p-4 space-y-6">
       {activeTab === "dashboard" && (
         <>
           <WeatherSection />

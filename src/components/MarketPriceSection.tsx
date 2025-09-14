@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, TrendingUp, Eye } from "lucide-react";
+import { MapPin, TrendingUp, Eye, Apple, Wheat, Wind, Leaf } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 
 export function MarketPriceSection() {
@@ -14,7 +14,7 @@ export function MarketPriceSection() {
       category: language === "en" ? "Other" : "മറ്റുള്ളവ",
       price: "₹8700/Q",
       location: "Malpura",
-      image: "🌾",
+      icon: Wheat,
       trend: "up",
       change: "+12%"
     },
@@ -24,7 +24,7 @@ export function MarketPriceSection() {
       category: "Amla",
       price: "₹1450/Q",
       location: "Jaipur (F&V)",
-      image: "🟢",
+      icon: Leaf,
       trend: "down",
       change: "-5%"
     },
@@ -34,7 +34,7 @@ export function MarketPriceSection() {
       category: "Apple",
       price: "₹5600/Q",
       location: "Khurai (F&V)",
-      image: "🍎",
+      icon: Apple,
       trend: "up",
       change: "+8%"
     },
@@ -44,7 +44,7 @@ export function MarketPriceSection() {
       category: language === "en" ? "Coconut" : "തേങ്ങ",
       price: "₹2800/100",
       location: "Kerala Market",
-      image: "🥥",
+      icon: Wind,
       trend: "stable",
       change: "0%"
     },
@@ -54,7 +54,7 @@ export function MarketPriceSection() {
       category: language === "en" ? "Grain" : "ധാന്യം",
       price: "₹3200/Q",
       location: "Palakkad",
-      image: "🌾",
+      icon: Wheat,
       trend: "up",
       change: "+3%"
     },
@@ -64,16 +64,16 @@ export function MarketPriceSection() {
       category: language === "en" ? "Spice" : "മസാല",
       price: "₹45000/Q",
       location: "Idukki",
-      image: "⚫",
+      icon: Leaf,
       trend: "up",
       change: "+15%"
     }
   ];
 
   const getTrendIcon = (trend: string) => {
-    if (trend === "up") return <TrendingUp className="h-3 w-3 text-green-600" />;
-    if (trend === "down") return <TrendingUp className="h-3 w-3 text-red-600 rotate-180" />;
-    return <div className="h-3 w-3 rounded-full bg-gray-400" />;
+    if (trend === "up") return <TrendingUp className="h-4 w-4 text-green-600" />;
+    if (trend === "down") return <TrendingUp className="h-4 w-4 text-red-600 rotate-180" />;
+    return <div className="h-4 w-4 rounded-full bg-gray-400" />;
   };
 
   const getTrendColor = (trend: string) => {
@@ -101,19 +101,19 @@ export function MarketPriceSection() {
               className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-4 border border-green-100 hover:shadow-md transition-shadow cursor-pointer"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="text-3xl">{item.image}</div>
+                <item.icon className="h-8 w-8 text-kerala-primary" />
                 <div className="flex items-center gap-1">
                   {getTrendIcon(item.trend)}
-                  <span className={`text-xs font-medium ${getTrendColor(item.trend)}`}>
+                  <span className={`text-sm font-medium ${getTrendColor(item.trend)}`}>
                     {item.change}
                   </span>
                 </div>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <h3 className="font-semibold text-kerala-primary">{item.name}</h3>
                 <p className="text-sm text-muted-foreground">{item.category}</p>
-                <div className="text-xl font-bold text-kerala-primary">{item.price}</div>
+                <div className="text-2xl font-bold text-kerala-primary">{item.price}</div>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <MapPin className="h-3 w-3" />
                   <span>{item.location}</span>
