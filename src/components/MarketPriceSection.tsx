@@ -2,16 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, TrendingUp, Eye, Apple, Wheat, Wind, Leaf } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 
 export function MarketPriceSection() {
-  const { language } = useLanguage();
+  const { i18n, t } = useTranslation();
 
   const marketPrices = [
     {
       id: 1,
-      name: language === "en" ? "Ajwan" : "അജ്വൈൻ",
-      category: language === "en" ? "Other" : "മറ്റുള്ളവ",
+      name: t("market.ajwan.name"),
+      category: t("market.ajwan.category"),
       price: "₹8700/Q",
       location: "Malpura",
       icon: Wheat,
@@ -20,8 +20,8 @@ export function MarketPriceSection() {
     },
     {
       id: 2,
-      name: language === "en" ? "Amla (Nelli Kai)" : "നെല്ലിക്ക",
-      category: "Amla",
+      name: t("market.amla.name"),
+      category: t("market.amla.category"),
       price: "₹1450/Q",
       location: "Jaipur (F&V)",
       icon: Leaf,
@@ -30,8 +30,8 @@ export function MarketPriceSection() {
     },
     {
       id: 3,
-      name: language === "en" ? "Apple" : "ആപ്പിൾ",
-      category: "Apple",
+      name: t("market.apple.name"),
+      category: t("market.apple.category"),
       price: "₹5600/Q",
       location: "Khurai (F&V)",
       icon: Apple,
@@ -40,8 +40,8 @@ export function MarketPriceSection() {
     },
     {
       id: 4,
-      name: language === "en" ? "Coconut" : "തേങ്ങ",
-      category: language === "en" ? "Coconut" : "തേങ്ങ",
+      name: t("market.coconut.name"),
+      category: t("market.coconut.category"),
       price: "₹2800/100",
       location: "Kerala Market",
       icon: Wind,
@@ -50,8 +50,8 @@ export function MarketPriceSection() {
     },
     {
       id: 5,
-      name: language === "en" ? "Rice" : "അരി",
-      category: language === "en" ? "Grain" : "ധാന്യം",
+      name: t("market.rice.name"),
+      category: t("market.rice.category"),
       price: "₹3200/Q",
       location: "Palakkad",
       icon: Wheat,
@@ -60,8 +60,8 @@ export function MarketPriceSection() {
     },
     {
       id: 6,
-      name: language === "en" ? "Pepper" : "കുരുമുളക്",
-      category: language === "en" ? "Spice" : "മസാല",
+      name: t("market.pepper.name"),
+      category: t("market.pepper.category"),
       price: "₹45000/Q",
       location: "Idukki",
       icon: Leaf,
@@ -86,10 +86,10 @@ export function MarketPriceSection() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <CardTitle className="text-lg font-semibold">
-          {language === "en" ? "Market Price" : "വിപണി വില"}
+          {t("market.title")}
         </CardTitle>
         <Button variant="outline" size="sm" className="text-kerala-primary border-kerala-primary">
-          {language === "en" ? "View All" : "എല്லാം കാണുക"}
+          {t("market.viewAll")}
           <Eye className="ml-2 h-4 w-4" />
         </Button>
       </CardHeader>

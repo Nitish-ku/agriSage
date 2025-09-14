@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Camera, Mic, Send } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 
 interface ChatInputAreaProps {
   onSendMessage: (message: string) => void;
@@ -18,7 +18,7 @@ export function ChatInputArea({
   isLoading = false 
 }: ChatInputAreaProps) {
   const [message, setMessage] = useState("");
-  const { language } = useLanguage();
+  const { t } = useTranslation();
 
   const handleSend = () => {
     if (message.trim()) {
@@ -54,11 +54,7 @@ export function ChatInputArea({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={
-                language === "en" 
-                  ? "Ask me anything" 
-                  : "എന്തെങ്കിലും ചോദിക്കുക"
-              }
+              placeholder={t("chatInput.placeholder")}
               className="w-full border-2 border-kerala-light/30 focus:border-kerala-primary text-lg p-4"
               disabled={isLoading}
             />
@@ -87,10 +83,7 @@ export function ChatInputArea({
 
         {/* Disclaimer */}
         <p className="text-center text-sm text-muted-foreground mt-3">
-          {language === "en" 
-            ? "Kindly verify all important information." 
-            : "എല്ലാ പ്രധാന വിവരങ്ങളും പരിശോധിച്ച് ഉറപ്പാക്കുക."
-          }
+          {t("chatInput.disclaimer")}
         </p>
       </div>
     </div>

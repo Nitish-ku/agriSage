@@ -3,13 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Upload, Camera, AlertCircle, CheckCircle, Video, Zap } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupabaseUser } from '@supabase/supabase-js';
-import { Language } from "@/hooks/useLanguage";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImageAnalysisProps {
-  language: Language;
 }
 
 interface AnalysisResult {
@@ -19,7 +18,7 @@ interface AnalysisResult {
   severity: "low" | "medium" | "high";
 }
 
-export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
+export const ImageAnalysis = ({ }: ImageAnalysisProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -29,6 +28,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     // Get current user
@@ -57,8 +57,8 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
     } catch (error) {
       console.error("Error accessing camera:", error);
       toast({
-        title: "Camera Error",
-        description: "Could not access the camera. Please check permissions.",
+        title: t("imageAnalysis.cameraErrorTitle"),
+        description: t("imageAnalysis.cameraErrorDesc"),
         variant: "destructive",
       });
     }
@@ -87,7 +87,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
   };
 
   // Mock disease database based on filename
-  const diseaseDatabase = {
+  const diseaseDatabase: { [key: string]: any } = {
     en: {
       banana: {
         disease: "Banana Leaf Spot (Sigatoka)",
@@ -196,13 +196,13 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
         setResult(null);
       } else {
         toast({
-          title: language === "en" ? "Invalid File" : language === "ml" ? "അസാധുവായ ഫയൽ" : "अमान्य फ़ाइल",
-          description: language === "en" ? "Please select an image file" : language === "ml" ? "ദയവായി ഒരു ചിത്ര ഫയൽ തിരഞ്ഞെടുക്കുക" : "कृपया एक छवि फ़ाइल चुनें",
+          title: t("imageAnalysis.invalidFileTitle"),
+          description: t("imageAnalysis.invalidFileDesc"),
           variant: "destructive"
         });
       }
     }
-  }, [language, toast]);
+  }, [t, toast]);
 
   const analyzeImage = async () => {
     if (!selectedFile || !user) return;
@@ -214,7 +214,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
       const { data, error } = await supabase.functions.invoke('analyze-plant-disease', {
         body: { 
           imageUrl: previewUrl,
-          language 
+          language: i18n.language 
         }
       });
 
@@ -244,14 +244,14 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
       setResult(analysis);
       
       toast({
-        title: language === "en" ? "Analysis Complete" : language === "ml" ? "വിശകലനം പൂർത്തിയായി" : "विश्लेषण पूर्ण",
-        description: language === "en" ? "Disease detected and treatment recommended" : language === "ml" ? "രോഗം കണ്ടെത്തി, ചികിത്സ നിർദ്ദേശിച്ചു" : "रोग की पहचान हुई और उपचार की सिफारिश की गई"
+        title: t("imageAnalysis.analysisCompleteTitle"),
+        description: t("imageAnalysis.analysisCompleteDesc"),
       });
     } catch (error) {
       console.error('Error saving analysis:', error);
       toast({
-        title: language === "en" ? "Error" : language === "ml" ? "പിശക്" : "त्रुटि",
-        description: language === "en" ? "Analysis failed" : language === "ml" ? "വിശകലനം പരാജയപ്പെട്ടു" : "विश्लेषण विफल",
+        title: t("imageAnalysis.errorTitle"),
+        description: t("imageAnalysis.errorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -269,27 +269,11 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
   };
 
   const getSeverityText = (severity: string) => {
-    if (language === "en") {
-      switch (severity) {
-        case "high": return "High Risk";
-        case "medium": return "Medium Risk";
-        case "low": return "Low Risk";
-        default: return "Unknown";
-      }
-    } else if (language === "ml") {
-      switch (severity) {
-        case "high": return "ഉയർന്ന അപകടം";
-        case "medium": return "ഇടത്തരം അപകടം";
-        case "low": return "കുറഞ്ഞ അപകടം";
-        default: return "അജ്ഞാതം";
-      }
-    } else { // Hindi
-      switch (severity) {
-        case "high": return "उच्च जोखिम";
-        case "medium": return "मध्यम जोखिम";
-        case "low": return "कम जोखिम";
-        default: return "अज्ञात";
-      }
+    switch (severity) {
+      case "high": return t("risk.highRisk");
+      case "medium": return t("risk.mediumRisk");
+      case "low": return t("risk.lowRisk");
+      default: return t("risk.unknown");
     }
   };
 
@@ -302,12 +286,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
             <CardTitle className="flex items-center space-x-2">
               <Camera className="h-5 w-5 text-kerala-primary" />
               <span>
-                {language === "en" 
-                  ? "Upload Crop Image" 
-                  : language === "ml" 
-                    ? "വിള ചിത്രം അപ്‌ലോഡ് ചെയ്യുക"
-                    : "फसल छवि अपलोड करें"
-                }
+                {t("imageAnalysis.uploadTitle")}
               </span>
             </CardTitle>
           </CardHeader>
@@ -325,20 +304,10 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
                   <>
                     <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p className="text-muted-foreground mb-2">
-                      {language === "en" 
-                        ? "Click to upload or drag and drop"
-                        : language === "ml"
-                          ? "അപ്‌ലോഡ് ചെയ്യാൻ ക്ലിക്കുചെയ്യുക അല്ലെങ്കിൽ ഡ്രാഗ് ആൻഡ് ഡ്രോപ്പ് ചെയ്യുക"
-                          : "अपलोड करने के लिए क्लिक करें या ड्रैग एंड ड्रॉप करें"
-                      }
+                      {t("imageAnalysis.uploadPrompt")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {language === "en" 
-                        ? "PNG, JPG or GIF (MAX. 5MB)"
-                        : language === "ml"
-                          ? "PNG, JPG അല്ലെങ്കിൽ GIF (മാക്സ് 5MB)"
-                          : "PNG, JPG या GIF (अधिकतम 5MB)"
-                      }
+                      {t("imageAnalysis.uploadFormats")}
                     </p>
                   </>
                 ) : stream ? (
@@ -353,12 +322,12 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
             <div className="flex gap-2">
               <Button onClick={openCamera} variant="outline" className="w-full">
                 <Video className="h-5 w-5 mr-2" />
-                {language === "en" ? "Open Camera" : "ക്യാമറ തുറക്കുക"}
+                {t("imageAnalysis.openCamera")}
               </Button>
               {stream && (
                 <Button onClick={captureImage} className="w-full">
                   <Zap className="h-5 w-5 mr-2" />
-                  {language === "en" ? "Capture" : "ചിത്രം എടുക്കുക"}
+                  {t("imageAnalysis.capture")}
                 </Button>
               )}
             </div>
@@ -369,20 +338,15 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
               className="w-full"
             >
               {isAnalyzing ? (
-                language === "en" ? "Analyzing..." : language === "ml" ? "വിശകലനം ചെയ്യുന്നു..." : "विश्लेषण कर रहे हैं..."
+                t("imageAnalysis.analyzing")
               ) : (
-                language === "en" ? "Analyze Image" : language === "ml" ? "ചിത്രം വിശകലനം ചെയ്യുക" : "छवि का विश्लेषण करें"
+                t("imageAnalysis.analyzeButton")
               )}
             </Button>
 
             <div className="text-xs text-muted-foreground">
               <p>
-                {language === "en" 
-                  ? "Upload clear images of affected crops for accurate disease detection"
-                  : language === "ml"
-                    ? "കൃത്യമായ രോഗനിർണയത്തിനായി ബാധിത വിളകളുടെ വ്യക്തമായ ചിത്രങ്ങൾ അപ്‌ലോഡ് ചെയ്യുക"
-                    : "सटीक रोग की पहचान के लिए प्रभावित फसलों की स्पष्ट छवियां अपलोड करें"
-                }
+                {t("imageAnalysis.disclaimer")}
               </p>
             </div>
           </CardContent>
@@ -394,7 +358,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
             <CardTitle className="flex items-center space-x-2">
               <AlertCircle className="h-5 w-5 text-kerala-secondary" />
               <span>
-                {language === "en" ? "Analysis Results" : language === "ml" ? "വിശകലന ഫലങ്ങൾ" : "विश्लेषण परिणाम"}
+                {t("imageAnalysis.resultsTitle")}
               </span>
             </CardTitle>
           </CardHeader>
@@ -403,12 +367,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
               <div className="text-center py-12 text-muted-foreground">
                 <Camera className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>
-                  {language === "en" 
-                    ? "Upload an image to get crop disease analysis"
-                    : language === "ml"
-                      ? "വിള രോഗ വിശകലനത്തിനായി ഒരു ചിത്രം അപ്‌ലോഡ് ചെയ്യുക"
-                      : "फसल रोग विश्लेषण के लिए एक छवि अपलोड करें"
-                  }
+                  {t("imageAnalysis.noResult")}
                 </p>
               </div>
             ) : (
@@ -420,21 +379,21 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
                   <div className="flex items-center space-x-1">
                     <CheckCircle className="h-4 w-4 text-green-500" />
                     <span className="text-sm text-muted-foreground">
-                      {result.confidence}% {language === "en" ? "confidence" : language === "ml" ? "ആത്മവിശ്വാസം" : "विश्वास"}
+                      {result.confidence}% {t("imageAnalysis.confidence")}
                     </span>
                   </div>
                 </div>
 
                 <div>
                   <h3 className="font-semibold mb-2 text-lg">
-                    {language === "en" ? "Detected Disease:" : language === "ml" ? "കണ്ടെത്തിയ രോഗം:" : "पहचाना गया रोग:"}
+                    {t("imageAnalysis.detectedDisease")}
                   </h3>
                   <p className="text-muted-foreground">{result.disease}</p>
                 </div>
 
                 <div>
                   <h4 className="font-medium mb-3">
-                    {language === "en" ? "Treatment Recommendations:" : language === "ml" ? "ചികിത്സാ നിർദ്ദേശങ്ങൾ:" : "उपचार की सिफारिशें:"}
+                    {t("imageAnalysis.treatmentRecommendations")}
                   </h4>
                   <div className="bg-muted p-4 rounded-lg">
                     <p className="text-sm">{result.treatment}</p>
@@ -443,12 +402,7 @@ export const ImageAnalysis = ({ language }: ImageAnalysisProps) => {
 
                 <div className="bg-kerala-primary/10 p-4 rounded-lg border-l-4 border-kerala-primary">
                   <p className="text-sm text-muted-foreground">
-                    {language === "en" 
-                      ? "💡 For severe cases, consult your local agricultural officer"
-                      : language === "ml"
-                        ? "💡 ഗുരുതരമായ കേസുകൾക്ക്, നിങ്ങളുടെ പ്രാദേശിക കാർഷിക ഉദ്യോഗസ്ഥനെ സമീപിക്കുക"
-                        : "💡 गंभीर मामलों के लिए, अपने स्थानीय कृषि अधिकारी से सलाह लें"
-                    }
+                    {t("imageAnalysis.severeCases")}
                   </p>
                 </div>
               </div>

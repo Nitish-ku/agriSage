@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 import { FixedHeader } from "@/components/FixedHeader";
@@ -31,7 +31,7 @@ export function MainLayout({ children, activeTab, onTabChange }: MainLayoutProps
 
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Set up auth state listener
@@ -107,7 +107,7 @@ export function MainLayout({ children, activeTab, onTabChange }: MainLayoutProps
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <img src={agrisageLogo} alt="Loading" className="w-16 h-16 mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">{(t as any)('loading')}</p>
+          <p className="text-muted-foreground">{t('loading')}</p>
         </div>
       </div>
     );

@@ -5,7 +5,7 @@ import { LogOut, Menu, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
@@ -16,9 +16,7 @@ import { RiskPrediction } from "@/components/RiskPrediction";
 import { WeatherSection } from "@/components/WeatherSection";
 import { MarketPriceSection } from "@/components/MarketPriceSection";
 import { GetStartedSection } from "@/components/GetStartedSection";
-import agrisageLogo from "@/assets/kerala-agrisage-logo.jpg";
 import { Message } from "@/App";
-import { MainLayout } from "@/components/MainLayout"; // Import MainLayout
 
 interface Profile {
   full_name: string | null;
@@ -39,7 +37,7 @@ const DashboardPage = ({ messages, addMessage, activeTab }: DashboardPageProps) 
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { language, t } = useLanguage();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
 
 
@@ -186,11 +184,11 @@ const DashboardPage = ({ messages, addMessage, activeTab }: DashboardPageProps) 
       )}
       
       {activeTab === "image" && (
-        <ImageAnalysis language={language} />
+        <ImageAnalysis />
       )}
       
       {activeTab === "risk" && (
-        <RiskPrediction language={language} />
+        <RiskPrediction />
       )}
     </div>
   );

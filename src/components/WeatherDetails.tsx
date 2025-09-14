@@ -9,10 +9,10 @@ import {
   MapPin,
   Sun
 } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 
 export function WeatherDetails() {
-  const { language } = useLanguage();
+  const { i18n, t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState(12);
 
   useEffect(() => {
@@ -20,22 +20,22 @@ export function WeatherDetails() {
   }, []);
 
   const weekDates = [
-    { day: language === "en" ? "Fri" : "വെള്ളി", date: 12, isToday: true },
-    { day: language === "en" ? "Sat" : "ശനി", date: 13, isToday: false },
-    { day: language === "en" ? "Sun" : "ഞായർ", date: 14, isToday: false },
-    { day: language === "en" ? "Mon" : "തിങ്കൾ", date: 15, isToday: false },
-    { day: language === "en" ? "Tue" : "ചൊവ്വ", date: 16, isToday: false },
-    { day: language === "en" ? "Wed" : "ബുധൻ", date: 17, isToday: false },
+    { day: t("days.fri"), date: 12, isToday: true },
+    { day: t("days.sat"), date: 13, isToday: false },
+    { day: t("days.sun"), date: 14, isToday: false },
+    { day: t("days.mon"), date: 15, isToday: false },
+    { day: t("days.tue"), date: 16, isToday: false },
+    { day: t("days.wed"), date: 17, isToday: false },
   ];
 
   const weatherData = {
-    location: "Poornima Marg, Sitapura",
+    location: t("weather.location"),
     temperature: "31°C",
-    condition: language === "en" ? "Partly Cloudy" : "ഭാഗികമായി മേഘാവൃതം",
+    condition: t("weather.condition"),
     rainfall: "0%",
     windSpeed: "2 km/h",
     humidity: "55%",
-    windDirection: language === "en" ? "Northwest" : "വടക്കുപടിഞ്ഞാറ്"
+    windDirection: t("weather.windDirection")
   };
 
   return (

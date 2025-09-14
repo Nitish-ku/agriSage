@@ -10,11 +10,11 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import agrisageLogo from "@/assets/kerala-agrisage-logo.jpg";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/ui/language-selector";
 
 const Auth = () => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

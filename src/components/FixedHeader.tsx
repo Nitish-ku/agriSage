@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Menu, MapPin } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/ui/language-selector";
 import { useSidebar } from "@/components/ui/sidebar";
 import agrisageLogo from "@/assets/kerala-agrisage-logo.jpg";
@@ -20,7 +20,7 @@ interface FixedHeaderProps {
 }
 
 export const FixedHeader = ({ user, profile }: FixedHeaderProps) => {
-  const { language } = useLanguage();
+  const { i18n, t } = useTranslation();
   const { toggleSidebar } = useSidebar();
 
   return (
@@ -34,7 +34,7 @@ export const FixedHeader = ({ user, profile }: FixedHeaderProps) => {
             <img src={agrisageLogo} alt="Kerala AgriSage" className="w-8 h-8 rounded-lg" />
             <div>
               <h1 className="text-lg font-bold text-kerala-primary">
-                {language === "en" ? "Kerala AgriSage" : "കേരള അഗ്രിസേജ്"}
+                {t("header.title")}
               </h1>
             </div>
           </div>
@@ -44,7 +44,7 @@ export const FixedHeader = ({ user, profile }: FixedHeaderProps) => {
           <div className="flex items-center gap-2 text-sm">
             <MapPin className="h-4 w-4 text-kerala-primary" />
             <span className="hidden sm:inline text-muted-foreground">
-              {profile?.location || "Kerala"}
+              {profile?.location || t("location.default")}
             </span>
           </div>
           

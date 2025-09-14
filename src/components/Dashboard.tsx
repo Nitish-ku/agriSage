@@ -14,13 +14,13 @@ import {
   Target,
   BookOpen
 } from "lucide-react";
-import { Language } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 
 interface DashboardProps {
-  language: Language;
 }
 
-export const Dashboard = ({ language }: DashboardProps) => {
+export const Dashboard = ({ }: DashboardProps) => {
+  const { t } = useTranslation();
   const [stats] = useState({
     queriesUsed: 7,
     queriesLimit: 10,
@@ -33,48 +33,48 @@ export const Dashboard = ({ language }: DashboardProps) => {
   const badges = [
     {
       id: 1,
-      name: language === "en" ? "First Query" : "ആദ്യ ചോദ്യം",
-      description: language === "en" ? "Asked your first question" : "നിങ്ങളുടെ ആദ്യ ചോദ്യം ചോദിച്ചു",
+      name: t("dashboard.badges.firstQuery.name"),
+      description: t("dashboard.badges.firstQuery.description"),
       icon: "🌱",
       earned: true,
       date: "2025-01-15"
     },
     {
       id: 2,
-      name: language === "en" ? "Farm Expert" : "കാർഷിക വിദഗ്ദൻ",
-      description: language === "en" ? "Completed 5 queries successfully" : "5 ചോദ്യങ്ങൾ വിജയകരമായി പൂർത്തിയാക്കി",
+      name: t("dashboard.badges.farmExpert.name"),
+      description: t("dashboard.badges.farmExpert.description"),
       icon: "🏆",
       earned: true,
       date: "2025-01-16"
     },
     {
       id: 3,
-      name: language === "en" ? "Disease Detective" : "രോഗ കണ്ടെത്തുന്നവൻ",
-      description: language === "en" ? "Analyzed 3 crop images" : "3 വിള ചിത്രങ്ങൾ വിശകലനം ചെയ്തു",
+      name: t("dashboard.badges.diseaseDetective.name"),
+      description: t("dashboard.badges.diseaseDetective.description"),
       icon: "🔍",
       earned: false,
       condition: 3
     },
     {
       id: 4,
-      name: language === "en" ? "Risk Master" : "അപകടസാധ്യത വിദഗ്ദൻ",
-      description: language === "en" ? "Completed 5 risk assessments" : "5 അപകടസാധ്യത വിലയിരുത്തലുകൾ പൂർത്തിയാക്കി",
+      name: t("dashboard.badges.riskMaster.name"),
+      description: t("dashboard.badges.riskMaster.description"),
       icon: "📊",
       earned: false,
       condition: 5
     },
     {
       id: 5,
-      name: language === "en" ? "Kerala Farmer" : "കേരള കർഷകൻ",
-      description: language === "en" ? "Used all daily queries for 7 days" : "7 ദിവസത്തേക്ക് എല്ലാ ദൈനംദിന ചോദ്യങ്ങളും ഉപയോഗിച്ചു",
+      name: t("dashboard.badges.keralaFarmer.name"),
+      description: t("dashboard.badges.keralaFarmer.description"),
       icon: "🥥",
       earned: false,
       condition: 7
     },
     {
       id: 6,
-      name: language === "en" ? "Crop Master" : "വിള വിദഗ്ദൻ",
-      description: language === "en" ? "Expert level - 50 successful interactions" : "വിദഗ്ദ്ധ തലം - 50 വിജയകരമായ ഇടപെടലുകൾ",
+      name: t("dashboard.badges.cropMaster.name"),
+      description: t("dashboard.badges.cropMaster.description"),
       icon: "👑",
       earned: false,
       condition: 50
@@ -84,25 +84,25 @@ export const Dashboard = ({ language }: DashboardProps) => {
   const recentActivities = [
     {
       type: "query",
-      content: language === "en" ? "Asked about banana leaf spot treatment" : "വാഴയുടെ ഇലപ്പുള്ളി ചികിത്സയെക്കുറിച്ച് ചോദിച്ചു",
+      content: t("dashboard.activity.query"),
       time: "2 hours ago",
       icon: MessageSquare
     },
     {
       type: "image",
-      content: language === "en" ? "Analyzed rice plant image for diseases" : "രോഗങ്ങൾക്കായി നെൽച്ചെടിയുടെ ചിത്രം വിശകലനം ചെയ്തു",
+      content: t("dashboard.activity.image"),
       time: "4 hours ago",
       icon: Camera
     },
     {
       type: "risk",
-      content: language === "en" ? "Completed risk assessment for pepper crop" : "കുരുമുളക് വിളയുടെ അപകടസാധ്യത വിലയിരുത്തൽ പൂർത്തിയാക്കി",
+      content: t("dashboard.activity.risk"),
       time: "1 day ago",
       icon: TrendingUp
     },
     {
       type: "badge",
-      content: language === "en" ? "Earned 'Farm Expert' badge!" : "'കാർഷിക വിദഗ്ദൻ' ബാഡ്ജ് നേടി!",
+      content: t("dashboard.activity.badge"),
       time: "2 days ago",
       icon: Award
     }

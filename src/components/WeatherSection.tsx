@@ -1,16 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Wind, Droplets, Sun } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export function WeatherSection() {
-  const { language } = useLanguage();
+  const { i18n, t } = useTranslation();
   const navigate = useNavigate();
 
   const weatherData = {
-    location: "Poornima Marg, Sitapura",
+    location: i18n.t("weather.location"),
     temperature: "31°C",
-    condition: language === "en" ? "Partly Cloudy" : "ഭാഗികമായി മേഘാവൃതം",
+    condition: i18n.t("weather.condition"),
     rainfall: "0%",
     windSpeed: "2 km/h",
     humidity: "55%",

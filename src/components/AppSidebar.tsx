@@ -22,7 +22,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import ChatHistory from "./ChatHistory";
 
 interface AppSidebarProps {
@@ -33,28 +33,28 @@ interface AppSidebarProps {
 
 export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProps) {
   const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
-  const { language, t } = useLanguage();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const menuItems = [
     { 
       id: "dashboard",
-      title: language === "en" ? "Dashboard" : "ഡാഷ്‌ബോർഡ്", 
+      title: t("sidebar.dashboard"), 
       icon: Home 
     },
     { 
       id: "chat",
-      title: language === "en" ? "New Chat" : "പുതിയ ചാറ്റ്", 
+      title: t("sidebar.newChat"), 
       icon: MessageSquarePlus 
     },
     { 
       id: "image",
-      title: language === "en" ? "Image Analysis" : "ചിത്ര വിശകലനം", 
+      title: t("sidebar.imageAnalysis"), 
       icon: Camera 
     },
     { 
       id: "risk",
-      title: language === "en" ? "Risk Prediction" : "അപകടസാധ്യത പ്രവചനം", 
+      title: t("sidebar.riskPrediction"), 
       icon: BarChart3 
     }
   ];
@@ -62,19 +62,19 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
   const secondaryItems = [
     { 
       id: "profile",
-      title: language === "en" ? "My Profile" : "എന്റെ പ്രൊഫൈൽ", 
+      title: t("sidebar.myProfile"), 
       icon: User,
       action: () => navigate("/profile")
     },
     { 
       id: "history",
-      title: language === "en" ? "Chat History" : "ചാറ്റ് ചരിത്രം", 
+      title: t("sidebar.chatHistory"), 
       icon: History,
       action: () => onTabChange("history")
     },
     {
       id: "settings",
-      title: language === "en" ? "Settings" : "ക്രമീകരണങ്ങൾ",
+      title: t("sidebar.settings"),
       icon: Settings,
       action: () => navigate("/settings")
     }
@@ -117,7 +117,7 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
 
         {/* Chat History */}
         <SidebarGroup>
-          <SidebarGroupLabel>{language === "en" ? "Recent Chats" : "സമീപകാല ചാറ്റുകൾ"}</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("sidebar.recentChats")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <ChatHistory onSelectChat={(chatId) => onTabChange("chat", chatId)} />
           </SidebarGroupContent>
@@ -146,13 +146,13 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
 
               {/* Logout */}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild size="lg" tooltip={language === "en" ? "Logout" : "ലോഗൗട്ട്"}>
+                <SidebarMenuButton asChild size="lg" tooltip={t("sidebar.logout")}>
                   <button 
                     onClick={onSignOut}
                     className="w-full flex items-center gap-2 p-2 hover:bg-red-50 hover:text-red-600"
                   >
                     <LogOut className="h-5 w-5" />
-                    {!isCollapsed && <span>{language === "en" ? "Logout" : "ലോഗൗട്ട്"}</span>}
+                    {!isCollapsed && <span>{t("sidebar.logout")}</span>}
                   </button>
                 </SidebarMenuButton>
               </SidebarMenuItem>

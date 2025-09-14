@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { LanguageProvider, useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import DashboardPage from "./pages/Dashboard";
@@ -28,7 +28,7 @@ export interface Message {
 const App = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [activeTab, setActiveTab] = useState("dashboard"); // Add activeTab state
-  const { language } = useLanguage();
+  const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -52,10 +52,10 @@ const App = () => {
     setMessages([
       {
         type: "bot",
-        content: language === "en" ? "Hello! How can I help you today?" : "வணக்கம்! நான் உங்களுக்கு எப்படி உதவ முடியும்?",
+        content: i18n.t("bot.greeting"),
       },
     ]);
-  }, [language]);
+  }, [i18n.language]);
 
   const addMessage = (message: Message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
@@ -111,9 +111,7 @@ const App = () => {
 
 const Root = () => (
   <BrowserRouter>
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
+    <App />
   </BrowserRouter>
 );
 

@@ -6,11 +6,11 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import keralaFarmerImage from "@/assets/kerala-farmer.jpg";
 import agrisageLogo from "@/assets/kerala-agrisage-logo.jpg";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/ui/language-selector";
 
 const Landing = () => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (

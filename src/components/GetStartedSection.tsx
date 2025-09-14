@@ -1,19 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lightbulb } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 
 interface GetStartedSectionProps {
   onQuestionClick: (question: string) => void;
 }
 
 export function GetStartedSection({ onQuestionClick }: GetStartedSectionProps) {
-  const { language } = useLanguage();
+  const { t } = useTranslation();
 
   const questions = [
-    language === "en" ? "What is the best fertilizer for rice?" : "നെല്ലിന് ഏറ്റവും നല്ല വളം ഏതാണ്?",
-    language === "en" ? "How to treat banana leaf spot disease?" : "വാഴയുടെ ഇലപ്പുള്ളി രോഗം എങ്ങനെ ചികിത്സിക്കാം?",
-    language === "en" ? "When is the best time to plant coconut?" : "തെങ്ങ് നടാൻ ഏറ്റവും അനുയോജ്യമായ സമയം എപ്പോഴാണ്?",
+    t("getStarted.q1"),
+    t("getStarted.q2"),
+    t("getStarted.q3"),
   ];
 
   return (
@@ -21,7 +21,7 @@ export function GetStartedSection({ onQuestionClick }: GetStartedSectionProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Lightbulb className="w-5 h-5 text-yellow-500" />
-          {language === "en" ? "Get Started" : "തുടങ്ങാം"}
+          {t("getStarted.title")}
         </CardTitle>
       </CardHeader>
       <CardContent>

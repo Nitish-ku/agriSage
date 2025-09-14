@@ -1,6 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, User } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import { Message } from "@/App";
 
 interface ChatInterfaceProps {
@@ -8,7 +8,7 @@ interface ChatInterfaceProps {
 }
 
 export const ChatInterface = ({ messages }: ChatInterfaceProps) => {
-  const { language } = useLanguage();
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col h-full">
