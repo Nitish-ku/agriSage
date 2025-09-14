@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -134,7 +134,7 @@ export function MainLayout({ children, activeTab, onTabChange }: MainLayoutProps
 
           {/* Content Area */}
           <main className="flex-1 overflow-y-auto">
-            {children}
+            {React.cloneElement(children as React.ReactElement, { activeTab })}
           </main>
         </div>
       </SidebarInset>

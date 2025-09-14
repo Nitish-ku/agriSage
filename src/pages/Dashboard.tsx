@@ -30,10 +30,10 @@ interface Profile {
 interface DashboardPageProps {
   messages: Message[];
   addMessage: (message: Message) => void;
+  activeTab: string;
 }
 
-const DashboardPage = ({ messages, addMessage }: DashboardPageProps) => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+const DashboardPage = ({ messages, addMessage, activeTab }: DashboardPageProps) => {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
 
   const navigate = useNavigate();
@@ -42,14 +42,7 @@ const DashboardPage = ({ messages, addMessage }: DashboardPageProps) => {
   const { language, t } = useLanguage();
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get("chat")) {
-      setActiveTab("chat");
-    } else if (params.get("image")) {
-      setActiveTab("image");
-    }
-  }, [location.search]);
+
 
   useEffect(() => {
     if (selectedChatId) {
@@ -75,14 +68,7 @@ const DashboardPage = ({ messages, addMessage }: DashboardPageProps) => {
     }
   }, [selectedChatId, toast]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get("chat")) {
-      setActiveTab("chat");
-    } else if (params.get("image")) {
-      setActiveTab("image");
-    }
-  }, [location.search]);
+
 
   useEffect(() => {
     if (selectedChatId) {
