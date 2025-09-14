@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { 
   Home, 
   MessageCircle, 
@@ -7,7 +7,7 @@ import {
   BarChart3, 
   User, 
   History, 
-  Globe, 
+  Settings, 
   LogOut,
   MessageSquarePlus
 } from "lucide-react";
@@ -23,16 +23,18 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useLanguage } from "@/hooks/useLanguage";
+import ChatHistory from "./ChatHistory";
 
 interface AppSidebarProps {
   onSignOut: () => void;
-  onTabChange: (tab: string) => void;
+  onTabChange: (tab: string, chatId?: string) => void;
   activeTab: string;
 }
 
 export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProps) {
   const { state } = useSidebar();
   const { language, t } = useLanguage();
+  const navigate = useNavigate();
 
   const menuItems = [
     { 
@@ -62,19 +64,19 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
       id: "profile",
       title: language === "en" ? "My Profile" : "എന്റെ പ്രൊഫൈൽ", 
       icon: User,
-      action: () => {} // TODO: Add profile functionality
+      action: () => navigate("/profile")
     },
     { 
       id: "history",
       title: language === "en" ? "Chat History" : "ചാറ്റ് ചരിത്രം", 
       icon: History,
-      action: () => {} // TODO: Add history functionality
+      action: () => onTabChange("history")
     },
-    { 
-      id: "language",
-      title: language === "en" ? "Language Preference" : "ഭാഷാ മുൻഗണന", 
-      icon: Globe,
-      action: () => {} // TODO: Add language settings
+    {
+      id: "settings",
+      title: language === "en" ? "Settings" : "ക്രമീകരണങ്ങൾ",
+      icon: Settings,
+      action: () => navigate("/settings")
     }
   ];
 
@@ -105,6 +107,17 @@ export function AppSidebar({ onSignOut, onTabChange, activeTab }: AppSidebarProp
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Divider */}
+        <div className="border-t border-border mx-4 my-2" />
+
+        {/* Chat History */}
+        <SidebarGroup>
+          <SidebarGroupLabel>{language === "en" ? "Recent Chats" : "സമീപകാല ചാറ്റുകൾ"}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <ChatHistory onSelectChat={(chatId) => onTabChange("chat", chatId)} />
           </SidebarGroupContent>
         </SidebarGroup>
 

@@ -8,6 +8,8 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import DashboardPage from "./pages/Dashboard";
 import WeatherPage from "./pages/Weather";
+import ProfilePage from "./pages/Profile";
+import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { ChatInputArea } from "./components/ChatInputArea";
 import { useState, useEffect } from "react";
@@ -67,6 +69,8 @@ const App = () => {
                 element={<DashboardPage messages={messages} addMessage={addMessage} />}
               />
               <Route path="/weather" element={<WeatherPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

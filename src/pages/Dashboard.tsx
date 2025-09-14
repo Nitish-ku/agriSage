@@ -14,7 +14,7 @@ import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { ChatInterface } from "@/components/ChatInterface";
 import { ImageAnalysis } from "@/components/ImageAnalysis";
 import { RiskPrediction } from "@/components/RiskPrediction";
-import { Dashboard } from "@/components/Dashboard";
+import { FixedHeader } from "@/components/FixedHeader";
 import { AppSidebar } from "@/components/AppSidebar";
 import { WeatherSection } from "@/components/WeatherSection";
 import { MarketPriceSection } from "@/components/MarketPriceSection";
@@ -40,6 +40,7 @@ const DashboardPage = ({ messages, addMessage }: DashboardPageProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,6 +56,30 @@ const DashboardPage = ({ messages, addMessage }: DashboardPageProps) => {
       setActiveTab("image");
     }
   }, [location.search]);
+
+  useEffect(() => {
+    if (selectedChatId) {
+      const fetchChat = async () => {
+        const { data, error } = await supabase
+          .from("chat_history")
+          .select("messages")
+          .eq("id", selectedChatId)
+          .single();
+
+        if (error) {
+          toast({
+            title: "Error",
+            description: "Could not fetch the selected chat.",
+            variant: "destructive",
+          });
+        } else {
+          setMessages(data.messages);
+        }
+      };
+
+      fetchChat();
+    }
+  }, [selectedChatId, toast]);
 
   useEffect(() => {
     // Set up auth state listener
@@ -125,9 +150,49 @@ const DashboardPage = ({ messages, addMessage }: DashboardPageProps) => {
     }
   };
 
-  const handleQuestionClick = (question: string) => {
+  const handleQuestionClick = async (question: string) => {
     setActiveTab("chat");
-    addMessage({ type: "user", content: question });
+    const newMessages = [...messages, { type: "user", content: question }];
+    setMessages(newMessages);
+
+    if (!selectedChatId) {
+      const { data, error } = await supabase
+        .from("chat_history")
+        .insert([
+          {
+            user_id: user?.id,
+            topic: question,
+            messages: newMessages,
+          },
+        ])
+        .select("id")
+        .single();
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Could not create a new chat.",
+          variant: "destructive",
+        });
+      } else {
+        setSelectedChatId(data.id);
+      }
+    } else {
+      const { error } = await supabase
+        .from("chat_history")
+        .update({
+          messages: newMessages,
+        })
+        .eq("id", selectedChatId);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Could not save your message.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   if (loading) {
@@ -147,59 +212,26 @@ const DashboardPage = ({ messages, addMessage }: DashboardPageProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-kerala-light/20 h-screen overflow-hidden">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-kerala-light/20">
         {/* Sidebar */}
         <AppSidebar 
           onSignOut={handleSignOut} 
-          onTabChange={setActiveTab}
+          onTabChange={(tab, chatId) => {
+            setActiveTab(tab);
+            if (chatId) {
+              setSelectedChatId(chatId);
+            }
+          }}
           activeTab={activeTab}
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-h-screen">
+        <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="px-4 py-3 border-b border-border/50 backdrop-blur-sm bg-background/80">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger className="lg:hidden" />
-                <div className="flex items-center gap-3">
-                  <img src={agrisageLogo} alt="Kerala AgriSage" className="w-8 h-8 rounded-lg" />
-                  <div>
-                    <h1 className="text-lg font-bold text-kerala-primary">
-                      {language === "en" ? "Kerala AgriSage" : "കേരള അഗ്രിസേജ്"}
-                    </h1>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-kerala-primary" />
-                  <span className="hidden sm:inline text-muted-foreground">
-                    {profile?.location || "Kerala"}
-                  </span>
-                </div>
-                
-                <LanguageSelector />
-                
-                <div className="hidden lg:flex items-center gap-3">
-                  <div className="text-right text-sm">
-                    <div className="font-medium text-kerala-primary">
-                      {profile?.full_name || user.email}
-                    </div>
-                  </div>
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-kerala-primary text-white">
-                      {profile?.full_name?.[0] || user.email?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-              </div>
-            </div>
-          </header>
+          <FixedHeader user={user} profile={profile} />
 
           {/* Content Area */}
-          <main className="flex-1 pb-24">
+          <main className="flex-1 overflow-y-auto">
             <div className="p-4 space-y-6">
               {activeTab === "dashboard" && (
                 <>
