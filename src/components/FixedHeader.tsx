@@ -1,8 +1,9 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Menu, MapPin } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { LanguageSelector } from "@/components/ui/language-selector";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 import agrisageLogo from "@/assets/kerala-agrisage-logo.jpg";
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -20,12 +21,15 @@ interface FixedHeaderProps {
 
 export const FixedHeader = ({ user, profile }: FixedHeaderProps) => {
   const { language } = useLanguage();
+  const { toggleSidebar } = useSidebar();
 
   return (
     <header className="px-4 py-3 border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-10">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <SidebarTrigger className="lg:hidden" />
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={toggleSidebar}>
+            <Menu className="h-6 w-6" />
+          </Button>
           <div className="flex items-center gap-3">
             <img src={agrisageLogo} alt="Kerala AgriSage" className="w-8 h-8 rounded-lg" />
             <div>
