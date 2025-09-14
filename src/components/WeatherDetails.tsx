@@ -69,7 +69,7 @@ export function WeatherDetails() {
               <span className="font-semibold">{weatherData.location}</span>
             </div>
             <Button size="sm" className="bg-kerala-primary hover:bg-kerala-primary/90 w-full sm:w-auto">
-              {language === "en" ? "Get Weather Advice" : "കാലാവസ്ഥാ ഉപദേശം"}
+              {t("weather.adviceButton")}
             </Button>
           </div>
 
@@ -88,7 +88,7 @@ export function WeatherDetails() {
             <div className="text-center p-4 bg-white/60 rounded-xl shadow-sm">
               <CloudRain className="h-7 w-7 mx-auto mb-2 text-blue-500" />
               <div className="text-sm text-muted-foreground mb-1">
-                {language === "en" ? "Rainfall" : "മഴ"}
+                {t("weather.rainfall")}
               </div>
               <div className="text-xl font-bold">{weatherData.rainfall}</div>
             </div>
@@ -96,7 +96,7 @@ export function WeatherDetails() {
             <div className="text-center p-4 bg-white/60 rounded-xl shadow-sm">
               <Wind className="h-7 w-7 mx-auto mb-2 text-gray-500" />
               <div className="text-sm text-muted-foreground mb-1">
-                {language === "en" ? "Wind Speed" : "കാറ്റിന്റെ വേഗത"}
+                {t("weather.windSpeed")}
               </div>
               <div className="text-xl font-bold">{weatherData.windSpeed}</div>
             </div>
@@ -104,7 +104,7 @@ export function WeatherDetails() {
             <div className="text-center p-4 bg-white/60 rounded-xl shadow-sm">
               <Droplets className="h-7 w-7 mx-auto mb-2 text-blue-400" />
               <div className="text-sm text-muted-foreground mb-1">
-                {language === "en" ? "Humidity" : "ആർദ്രത"}
+                {t("weather.humidity")}
               </div>
               <div className="text-xl font-bold">{weatherData.humidity}</div>
             </div>
@@ -112,7 +112,7 @@ export function WeatherDetails() {
             <div className="text-center p-4 bg-white/60 rounded-xl shadow-sm">
               <Navigation className="h-7 w-7 mx-auto mb-2 text-gray-600" />
               <div className="text-sm text-muted-foreground mb-1">
-                {language === "en" ? "Wind Direction" : "കാറ്റിന്റെ ദിശ"}
+                {t("weather.windDirection")}
               </div>
               <div className="text-lg font-bold">{weatherData.windDirection}</div>
             </div>
