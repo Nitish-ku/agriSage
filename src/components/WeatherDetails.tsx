@@ -43,19 +43,19 @@ export function WeatherDetails() {
       <CardContent className="p-0">
         {/* Date Selection */}
         <div className="p-4 bg-white/80">
-          <div className="flex justify-between items-center overflow-x-auto gap-2">
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
             {weekDates.map((dateItem) => (
               <button
                 key={dateItem.date}
                 onClick={() => setSelectedDate(dateItem.date)}
-                className={`flex flex-col items-center p-2 rounded-full min-w-[60px] transition-colors ${
+                className={`flex flex-col items-center p-3 rounded-lg min-w-[60px] transition-colors ${
                   dateItem.isToday || selectedDate === dateItem.date
-                    ? "bg-kerala-primary text-white" 
+                    ? "bg-kerala-primary text-white shadow-lg" 
                     : "hover:bg-gray-100"
                 }`}
               >
-                <span className="text-xs font-medium">{dateItem.day}</span>
-                <span className="text-lg font-bold">{dateItem.date}</span>
+                <span className="text-sm font-medium">{dateItem.day}</span>
+                <span className="text-xl font-bold">{dateItem.date}</span>
               </button>
             ))}
           </div>
@@ -63,58 +63,58 @@ export function WeatherDetails() {
 
         {/* Weather Info */}
         <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-kerala-primary" />
-              <span className="text-sm font-medium">{weatherData.location}</span>
+              <MapPin className="h-5 w-5 text-kerala-primary" />
+              <span className="font-semibold">{weatherData.location}</span>
             </div>
-            <Button size="sm" className="bg-kerala-primary hover:bg-kerala-primary/90">
+            <Button size="sm" className="bg-kerala-primary hover:bg-kerala-primary/90 w-full sm:w-auto">
               {language === "en" ? "Get Weather Advice" : "കാലാവസ്ഥാ ഉപദേശം"}
             </Button>
           </div>
 
-          <div className="flex items-center justify-between mb-6">
-            <div className="text-3xl font-bold text-kerala-primary">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+            <div className="text-5xl font-bold text-kerala-primary">
               {weatherData.temperature}
             </div>
             <div className="flex items-center gap-2">
-              <Sun className="h-6 w-6 text-yellow-500" />
-              <span className="text-lg">{weatherData.condition}</span>
+              <Sun className="h-8 w-8 text-yellow-500" />
+              <span className="text-xl font-medium">{weatherData.condition}</span>
             </div>
           </div>
 
           {/* Weather Details Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-white/60 rounded-lg">
-              <CloudRain className="h-6 w-6 mx-auto mb-2 text-blue-500" />
-              <div className="text-xs text-muted-foreground mb-1">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-4 bg-white/60 rounded-xl shadow-sm">
+              <CloudRain className="h-7 w-7 mx-auto mb-2 text-blue-500" />
+              <div className="text-sm text-muted-foreground mb-1">
                 {language === "en" ? "Rainfall" : "മഴ"}
               </div>
-              <div className="text-lg font-bold">{weatherData.rainfall}</div>
+              <div className="text-xl font-bold">{weatherData.rainfall}</div>
             </div>
 
-            <div className="text-center p-3 bg-white/60 rounded-lg">
-              <Wind className="h-6 w-6 mx-auto mb-2 text-gray-500" />
-              <div className="text-xs text-muted-foreground mb-1">
+            <div className="text-center p-4 bg-white/60 rounded-xl shadow-sm">
+              <Wind className="h-7 w-7 mx-auto mb-2 text-gray-500" />
+              <div className="text-sm text-muted-foreground mb-1">
                 {language === "en" ? "Wind Speed" : "കാറ്റിന്റെ വേഗത"}
               </div>
-              <div className="text-lg font-bold">{weatherData.windSpeed}</div>
+              <div className="text-xl font-bold">{weatherData.windSpeed}</div>
             </div>
 
-            <div className="text-center p-3 bg-white/60 rounded-lg">
-              <Droplets className="h-6 w-6 mx-auto mb-2 text-blue-400" />
-              <div className="text-xs text-muted-foreground mb-1">
+            <div className="text-center p-4 bg-white/60 rounded-xl shadow-sm">
+              <Droplets className="h-7 w-7 mx-auto mb-2 text-blue-400" />
+              <div className="text-sm text-muted-foreground mb-1">
                 {language === "en" ? "Humidity" : "ആർദ്രത"}
               </div>
-              <div className="text-lg font-bold">{weatherData.humidity}</div>
+              <div className="text-xl font-bold">{weatherData.humidity}</div>
             </div>
 
-            <div className="text-center p-3 bg-white/60 rounded-lg">
-              <Navigation className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-              <div className="text-xs text-muted-foreground mb-1">
+            <div className="text-center p-4 bg-white/60 rounded-xl shadow-sm">
+              <Navigation className="h-7 w-7 mx-auto mb-2 text-gray-600" />
+              <div className="text-sm text-muted-foreground mb-1">
                 {language === "en" ? "Wind Direction" : "കാറ്റിന്റെ ദിശ"}
               </div>
-              <div className="text-sm font-bold">{weatherData.windDirection}</div>
+              <div className="text-lg font-bold">{weatherData.windDirection}</div>
             </div>
           </div>
         </div>

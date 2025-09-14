@@ -63,7 +63,8 @@ const App = () => {
 
   const handleSendMessage = (message: string) => {
     addMessage({ type: "user", content: message });
-    navigate("/dashboard?chat=true");
+    setActiveTab("chat");
+    navigate("/dashboard?tab=chat");
     // TODO: Implement bot response
   };
 
