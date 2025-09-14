@@ -12,6 +12,10 @@ import ProfilePage from "./pages/Profile";
 import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { ChatInputArea } from "./components/ChatInputArea";
+import { MainLayout } from "@/components/MainLayout"; // Import MainLayout
+import { SidebarProvider } from "@/components/ui/sidebar";
+
+
 import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -23,9 +27,19 @@ export interface Message {
 
 const App = () => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [activeTab, setActiveTab] = useState("dashboard"); // Add activeTab state
   const { language } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const handleTabChange = (tab: string, chatId?: string) => {
+    setActiveTab(tab);
+    // You might want to handle chatId here if it affects global state or navigation
+    if (chatId) {
+      // Example: navigate to a specific chat if needed
+      // navigate(`/dashboard?chat=true&chatId=${chatId}`);
+    }
+  };
 
   useEffect(() => {
     setMessages([
@@ -61,18 +75,20 @@ const App = () => {
         <Sonner />
         <div className="flex flex-col h-screen">
           <div className="flex-1 overflow-y-auto">
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route
-                path="/dashboard"
-                element={<DashboardPage messages={messages} addMessage={addMessage} />}
-              />
-              <Route path="/weather" element={<WeatherPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <SidebarProvider>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route
+                  path="/dashboard"
+                  element={<MainLayout activeTab={activeTab} onTabChange={handleTabChange}><DashboardPage messages={messages} addMessage={addMessage} /></MainLayout>}
+                />
+                <Route path="/weather" element={<MainLayout activeTab="weather" onTabChange={handleTabChange}><WeatherPage /></MainLayout>} />
+                <Route path="/profile" element={<MainLayout activeTab="profile" onTabChange={handleTabChange}><ProfilePage /></MainLayout>} />
+                <Route path="/settings" element={<MainLayout activeTab="settings" onTabChange={handleTabChange}><SettingsPage /></MainLayout>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </SidebarProvider>
           </div>
           {location.pathname === "/dashboard" && (
             <ChatInputArea

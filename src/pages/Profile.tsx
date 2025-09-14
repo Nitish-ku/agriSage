@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { MainLayout } from "@/components/MainLayout"; // Import MainLayout
 
 interface ProfileData {
   full_name: string | null;
@@ -17,17 +18,19 @@ interface ProfileData {
 }
 
 const ProfilePage = () => {
-  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
+  // We will fetch user from MainLayout context later, for now keep it here for compilation
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+
   useEffect(() => {
     const fetchUserAndProfile = async () => {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      setUser(user); // Set user here for now
 
       if (user) {
         const { data, error } = await supabase

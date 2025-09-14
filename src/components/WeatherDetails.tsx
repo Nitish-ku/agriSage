@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -14,6 +14,10 @@ import { useLanguage } from "@/hooks/useLanguage";
 export function WeatherDetails() {
   const { language } = useLanguage();
   const [selectedDate, setSelectedDate] = useState(12);
+
+  useEffect(() => {
+    console.log("WeatherDetails component mounted");
+  }, []);
 
   const weekDates = [
     { day: language === "en" ? "Fri" : "വെള്ളി", date: 12, isToday: true },
@@ -35,7 +39,7 @@ export function WeatherDetails() {
   };
 
   return (
-    <Card className="overflow-hidden bg-gradient-to-br from-blue-50 to-green-50 border-0">
+    <Card className="w-full h-full overflow-hidden bg-gradient-to-br from-blue-50 to-green-50 border-0">
       <CardContent className="p-0">
         {/* Date Selection */}
         <div className="p-4 bg-white/80">
