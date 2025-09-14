@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, MessageCircle, Camera, BarChart3, Shield, Users, Zap } from "lucide-react";
+import { ArrowRight, MessageCircle, Camera, BarChart3, Shield, Users, Zap, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import keralaFarmerImage from "@/assets/kerala-farmer.jpg";
 import agrisageLogo from "@/assets/kerala-agrisage-logo.jpg";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -10,11 +11,12 @@ import { LanguageSelector } from "@/components/ui/language-selector";
 
 const Landing = () => {
   const { t } = useLanguage();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-kerala-light/20">
       {/* Header */}
-      <header className="px-6 py-4 border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-10">
+      <header className="px-6 py-4 border-b border-border/50 backdrop-blur-sm bg-background/80 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={agrisageLogo} alt="Kerala AgriSage" className="w-10 h-10 rounded-lg" />
@@ -23,7 +25,7 @@ const Landing = () => {
               <p className="text-xs text-muted-foreground">{t('header.subtitle')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <LanguageSelector />
             <Link to="/auth">
               <Button variant="outline" size="sm">{t('header.signin')}</Button>
@@ -34,7 +36,27 @@ const Landing = () => {
               </Button>
             </Link>
           </div>
+          <div className="md:hidden">
+            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              <Menu className="h-6 w-6" />
+            </Button>
+          </div>
         </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-4 p-4 bg-background rounded-lg shadow-lg">
+            <div className="flex flex-col gap-4">
+              <LanguageSelector />
+              <Link to="/auth">
+                <Button variant="outline" className="w-full">{t('header.signin')}</Button>
+              </Link>
+              <Link to="/auth">
+                <Button className="w-full bg-kerala-primary hover:bg-kerala-secondary">
+                  {t('header.getstarted')}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
