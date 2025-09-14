@@ -75,20 +75,18 @@ const App = () => {
         <Sonner />
         <div className="flex flex-col h-screen">
           <div className="flex-1 overflow-y-auto">
-            <SidebarProvider>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route
-                  path="/dashboard"
-                  element={<MainLayout activeTab={activeTab} onTabChange={handleTabChange}><DashboardPage messages={messages} addMessage={addMessage} /></MainLayout>}
-                />
-                <Route path="/weather" element={<MainLayout activeTab="weather" onTabChange={handleTabChange}><WeatherPage /></MainLayout>} />
-                <Route path="/profile" element={<MainLayout activeTab="profile" onTabChange={handleTabChange}><ProfilePage /></MainLayout>} />
-                <Route path="/settings" element={<MainLayout activeTab="settings" onTabChange={handleTabChange}><SettingsPage /></MainLayout>} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </SidebarProvider>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route
+                path="/dashboard"
+                element={<SidebarProvider><MainLayout activeTab={activeTab} onTabChange={handleTabChange}><DashboardPage messages={messages} addMessage={addMessage} /></MainLayout></SidebarProvider>}
+              />
+              <Route path="/weather" element={<SidebarProvider><MainLayout activeTab="weather" onTabChange={handleTabChange}><WeatherPage /></MainLayout></SidebarProvider>} />
+              <Route path="/profile" element={<SidebarProvider><MainLayout activeTab="profile" onTabChange={handleTabChange}><ProfilePage /></MainLayout></SidebarProvider>} />
+              <Route path="/settings" element={<SidebarProvider><MainLayout activeTab="settings" onTabChange={handleTabChange}><SettingsPage /></MainLayout></SidebarProvider>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </div>
           {location.pathname === "/dashboard" && (
             <ChatInputArea
