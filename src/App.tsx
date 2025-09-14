@@ -34,12 +34,19 @@ const App = () => {
 
   const handleTabChange = (tab: string, chatId?: string) => {
     setActiveTab(tab);
-    // You might want to handle chatId here if it affects global state or navigation
+    navigate(`/dashboard?tab=${tab}`);
     if (chatId) {
-      // Example: navigate to a specific chat if needed
-      // navigate(`/dashboard?chat=true&chatId=${chatId}`);
+      navigate(`/dashboard?tab=chat&chatId=${chatId}`);
     }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     setMessages([
