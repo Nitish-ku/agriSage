@@ -28,8 +28,8 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 port = 54329
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://localhost:3000"]
+site_url = "https://agri-sage-nine.vercel.app/"
+additional_redirect_urls = ["https://agri-sage-nine.vercel.app/"]
 jwt_expiry = 3600
 enable_signup = true
 
