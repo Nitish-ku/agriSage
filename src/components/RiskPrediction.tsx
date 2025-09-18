@@ -248,7 +248,7 @@ export const RiskPrediction = ({ }: RiskPredictionProps) => {
                     <SelectValue placeholder={t("risk.selectCrop")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {crops[i18n.language].map((crop) => (
+                    {(crops[i18n.language] || crops['en']).map((crop) => (
                       <SelectItem key={crop.value} value={crop.value}>
                         {crop.label}
                       </SelectItem>

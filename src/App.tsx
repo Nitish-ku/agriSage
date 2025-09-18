@@ -26,12 +26,16 @@ export interface Message {
   content: string;
 }
 
+import { useImageAnalysis } from '@/hooks/useImageAnalysis';
+
 const App = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [activeTab, setActiveTab] = useState("dashboard"); // Add activeTab state
+  const [activeTab, setActiveTab] = useState("dashboard");
   const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAnalyzing, analysisResult, analysisError, performAnalysis } = useImageAnalysis();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleTabChange = (tab: string, chatId?: string) => {
     setActiveTab(tab);
@@ -42,23 +46,38 @@ const App = () => {
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tab = params.get("tab");
-    if (tab) {
-      setActiveTab(tab);
-    }
-  }, [location.search]);
+    setIsLoading(isAnalyzing);
+  }, [isAnalyzing]);
 
+  // Effect to handle streaming analysis result for chat
   useEffect(() => {
-    setMessages([
-      {
-        type: "bot",
-        content: i18n.t("bot.greeting"),
-      },
-    ]);
-  }, [i18n.language]);
+    if (analysisResult) {
+      setMessages(prev => {
+        const newMessages = [...prev];
+        // Ensure the last message is a bot message before updating
+        if (newMessages.length > 0 && newMessages[newMessages.length - 1].type === 'bot') {
+          newMessages[newMessages.length - 1].content = analysisResult;
+        }
+        return newMessages;
+      });
+    }
+  }, [analysisResult]);
 
-  const [isLoading, setIsLoading] = useState(false);
+  // Effect to handle analysis error
+  useEffect(() => {
+    if (analysisError) {
+      setMessages(prev => {
+        const newMessages = [...prev];
+        if (newMessages.length > 0 && newMessages[newMessages.length - 1].type === 'bot') {
+          newMessages[newMessages.length - 1].content = `Sorry, an error occurred: ${analysisError}`;
+        } else {
+          newMessages.push({ type: 'bot', content: `Sorry, an error occurred: ${analysisError}` });
+        }
+        return newMessages;
+      });
+    }
+  }, [analysisError]);
+
   const addMessage = (message: Message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
   };
@@ -118,84 +137,25 @@ const App = () => {
   };
 
   const handleImageSelect = async (file: File) => {
-    setIsLoading(true);
     setActiveTab("chat");
     navigate("/dashboard?tab=chat");
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
       const imageDataUrl = e.target?.result as string;
-      if (!imageDataUrl) {
-        // Handle error
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // 1. Add image to chat messages
+      if (imageDataUrl) {
         const imageMessage: Message = { 
           type: "user", 
           content: `<img src="${imageDataUrl}" alt="Uploaded plant" style="max-width: 300px; border-radius: 8px;" />` 
         };
-        setMessages((prevMessages) => [...prevMessages, imageMessage]);
-
-        // 2. Add empty bot message for streaming
-        const botMessage: Message = { type: "bot", content: "" };
-        setMessages((prevMessages) => [...prevMessages, botMessage]);
-
-        // 3. Call the analysis function and stream the response
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error("User not authenticated.");
-
-        const response = await fetch(`${SUPABASE_URL}/functions/v1/analyze-plant-disease`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ imageDataUrl }),
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        if (!response.body) throw new Error("No response body.");
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-
-        let done = false;
-        while (!done) {
-          const { value, done: readerDone } = await reader.read();
-          done = readerDone;
-          const chunk = decoder.decode(value, { stream: true });
-          
-          setMessages(prevMessages => {
-            const newMessages = [...prevMessages];
-            newMessages[newMessages.length - 1].content += chunk;
-            return newMessages;
-          });
-        }
-
-      } catch (error) {
-        console.error("Error during image analysis:", error);
-        setMessages(prevMessages => {
-          const newMessages = [...prevMessages];
-          const lastMessage = newMessages[newMessages.length - 1];
-          if (lastMessage.type === 'bot' && lastMessage.content === '') {
-            lastMessage.content = "Sorry, I encountered an error analyzing the image.";
-          } else {
-            newMessages.push({ type: 'bot', content: "Sorry, I encountered an error analyzing the image." });
-          }
-          return newMessages;
-        });
-      } finally {
-        setIsLoading(false);
+        setMessages(prev => [...prev, imageMessage]);
+        
+        // Add an empty bot message for the streaming result
+        setMessages(prev => [...prev, { type: 'bot', content: '' }]);
+        
+        performAnalysis(file);
       }
-    };
-
-    reader.onerror = (error) => {
-      console.error("Error reading file:", error);
-      setIsLoading(false);
     };
   };
 
