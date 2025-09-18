@@ -27,8 +27,8 @@ export const ChatInterface = ({ messages }: ChatInterfaceProps) => {
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted"
                 }`}>
-                {message.type === 'bot' ? (
-                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.content}</ReactMarkdown>
+                {message.type === 'user' ? (
+                  <div dangerouslySetInnerHTML={{ __html: message.content }} />
                 ) : (
                   <ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.content}</ReactMarkdown>
                 )}
