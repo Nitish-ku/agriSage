@@ -1,7 +1,9 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+// Get the API key from environment variables
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,6 +19,13 @@ serve(async (req) => {
   try {
     const { query, language } = await req.json();
 
+    if (!geminiApiKey) {
+      throw new Error("GEMINI_API_KEY is not set in environment variables.");
+    }
+
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
     const systemPrompt = `You are an expert agricultural assistant specialized in Kerala farming practices. Provide practical, actionable advice for farmers about crops, pests, diseases, fertilizers, and farming techniques. Keep responses concise and helpful.
 
 Language: ${language === 'ml' ? 'Malayalam' : language === 'hi' ? 'Hindi' : 'English'}
@@ -29,36 +38,24 @@ Always include:
 - Preventive measures
 - Local availability considerations`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
+    const prompt = `${systemPrompt}\n\nUser query: ${query}`;
+
+    const result = await model.generateContentStream(prompt);
+
+    // Create a ReadableStream to send the response
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        for await (const chunk of result.stream) {
+          const text = chunk.text();
+          controller.enqueue(encoder.encode(text));
+        }
+        controller.close();
       },
-      body: JSON.stringify({
-        model: 'gpt-5-mini-2025-08-07',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: query }
-        ],
-        max_completion_tokens: 300,
-      }),
     });
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
-
-    console.log('Agricultural chat response generated successfully');
-
-    return new Response(JSON.stringify({ 
-      response: aiResponse,
-      confidence: Math.random() * 0.3 + 0.7 // Mock confidence between 0.7-1.0
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(stream, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
     });
   } catch (error) {
     console.error('Error in agricultural-chat function:', error);

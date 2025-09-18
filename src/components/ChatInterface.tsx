@@ -2,6 +2,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Message } from "@/App";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -20,12 +22,16 @@ export const ChatInterface = ({ messages }: ChatInterfaceProps) => {
               className={`flex items-start gap-3 ${message.type === "user" ? "justify-end" : ""}`}>
               {message.type === "bot" && <Bot className="w-6 h-6" />}
               <div
-                className={`p-3 rounded-lg max-w-[80%] break-words ${
+                className={`p-3 rounded-lg max-w-[80%] break-words prose ${
                   message.type === "user"
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted"
                 }`}>
-                {message.content}
+                {message.type === 'bot' ? (
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.content}</ReactMarkdown>
+                ) : (
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{message.content}</ReactMarkdown>
+                )}
               </div>
               {message.type === "user" && <User className="w-6 h-6" />}
             </div>

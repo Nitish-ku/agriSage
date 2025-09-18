@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Camera, Mic, Send } from "lucide-react";
@@ -6,19 +6,20 @@ import { useTranslation } from "react-i18next";
 
 interface ChatInputAreaProps {
   onSendMessage: (message: string) => void;
-  onImageUpload: () => void;
+  onImageSelect: (file: File) => void;
   onVoiceInput: () => void;
   isLoading?: boolean;
 }
 
 export function ChatInputArea({ 
   onSendMessage, 
-  onImageUpload, 
+  onImageSelect, 
   onVoiceInput, 
   isLoading = false 
 }: ChatInputAreaProps) {
   const [message, setMessage] = useState("");
   const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = () => {
     if (message.trim()) {
@@ -34,6 +35,13 @@ export function ChatInputArea({
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onImageSelect(file);
+    }
+  };
+
   return (
     <div className="bg-white border-t border-border p-4 shadow-lg">
       <div className="max-w-4xl mx-auto">
@@ -42,11 +50,19 @@ export function ChatInputArea({
           <Button
             variant="outline"
             size="lg"
-            onClick={onImageUpload}
+            onClick={() => fileInputRef.current?.click()}
             className="flex-shrink-0 bg-kerala-primary text-white border-kerala-primary hover:bg-kerala-primary/90 p-4"
+            disabled={isLoading}
           >
             <Camera className="h-7 w-7" />
           </Button>
+          <input 
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*"
+          />
 
           {/* Message Input */}
           <div className="flex-1">
@@ -66,6 +82,7 @@ export function ChatInputArea({
             size="lg"
             onClick={onVoiceInput}
             className="flex-shrink-0 bg-kerala-primary text-white border-kerala-primary hover:bg-kerala-primary/90 p-4"
+            disabled={isLoading}
           >
             <Mic className="h-7 w-7" />
           </Button>
