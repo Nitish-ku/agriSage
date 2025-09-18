@@ -1,88 +1,89 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': '*', 
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    if (!geminiApiKey) {
+      throw new Error("GEMINI_API_KEY is not set.");
+    }
+
     const { crop, temperature, humidity, pH, season, location, language } = await req.json();
 
-    const systemPrompt = `You are an expert agricultural risk analyst for Kerala farming. Analyze the provided crop and environmental conditions to predict farming risks and provide recommendations.
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-Parameters:
-- Crop: ${crop}
-- Temperature: ${temperature}°C
-- Humidity: ${humidity}%
-- pH Level: ${pH}
-- Season: ${season}
-- Location: ${location}
+    const langMap = {
+      ml: 'Malayalam',
+      hi: 'Hindi',
+      en: 'English'
+    };
 
-Language: ${language === 'ml' ? 'Malayalam' : language === 'hi' ? 'Hindi' : 'English'}
-Context: Kerala climate, monsoon patterns, local pests and diseases
+    const prompt = `
+      You are an expert agricultural risk analyst specializing in farming in Kerala, India.
+      Analyze the provided crop and environmental conditions to predict farming risks and provide actionable recommendations.
 
-Provide risk assessment for:
-1. Overall risk level (low/medium/high)
-2. Weather-related risks
-3. Disease susceptibility 
-4. Soil condition risks
-5. Specific actionable recommendations
+      **Input Parameters:**
+      - Crop: ${crop}
+      - Location: ${location}, Kerala
+      - Season: ${season}
+      - Temperature: ${temperature}°C
+      - Humidity: ${humidity}%
+      - Soil pH Level: ${pH}
 
-Format as JSON with keys: overallRisk, weatherRisk, diseaseRisk, soilRisk, recommendations (array), confidence`;
+      **Analysis Language:** ${langMap[language] || 'English'}
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-5-mini-2025-08-07',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analyze risk factors for ${crop} cultivation with the given environmental conditions.` }
+      **Task:**
+      Based on the input parameters and the specific context of Kerala's climate, common pests, and soil types, provide a detailed risk analysis.
+
+      **Output Format:**
+      Your response MUST be a single, valid JSON object. Do not include any text or markdown formatting (like \
+```json\
+) before or after the JSON object.
+      The JSON object must have the following structure:
+      {
+        "overallRisk": "<low|medium|high>",
+        "weatherRisk": "<low|medium|high>",
+        "diseaseRisk": "<low|medium|high>",
+        "soilRisk": "<low|medium|high>",
+        "recommendations": [
+          "<string>",
+          "<string>",
+          "..."
         ],
-        max_completion_tokens: 400,
-      }),
-    });
+        "confidence": <number between 0 and 100>
+      }
+    `;
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // More robustly find and parse the JSON from the model's response
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) {
+      throw new Error("AI response did not contain valid JSON. Response: " + text);
     }
-
-    const data = await response.json();
-    let riskResult;
-
-    try {
-      // Try to parse JSON response
-      riskResult = JSON.parse(data.choices[0].message.content);
-    } catch {
-      // Fallback if not JSON format
-      const content = data.choices[0].message.content;
-      riskResult = {
-        overallRisk: "medium",
-        weatherRisk: "medium", 
-        diseaseRisk: "medium",
-        soilRisk: "medium",
-        recommendations: [content.substring(0, 100) + "..."],
-        confidence: 75
-      };
-    }
+    const jsonString = match[0];
+    const riskResult = JSON.parse(jsonString);
 
     console.log('Crop risk prediction completed');
 
     return new Response(JSON.stringify(riskResult), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
   } catch (error) {
     console.error('Error in predict-crop-risk function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
