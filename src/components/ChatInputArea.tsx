@@ -7,17 +7,18 @@ import { useTranslation } from "react-i18next";
 interface ChatInputAreaProps {
   onSendMessage: (message: string) => void;
   onImageSelect: (file: File) => void;
-  onVoiceInput: () => void;
+  onVoiceInputToggle: () => void;
   isLoading?: boolean;
+  isRecording?: boolean;
 }
 
 export function ChatInputArea({ 
   onSendMessage, 
   onImageSelect, 
-  onVoiceInput, 
-  isLoading = false 
-}: ChatInputAreaProps) {
-  const [message, setMessage] = useState("");
+  onVoiceInputToggle,
+  isLoading = false,
+  isRecording = false,
+}: ChatInputAreaProps) {  const [message, setMessage] = useState("");
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,11 +53,11 @@ export function ChatInputArea({
             size="lg"
             onClick={() => fileInputRef.current?.click()}
             className="flex-shrink-0 bg-kerala-primary text-white border-kerala-primary hover:bg-kerala-primary/90 p-4"
-            disabled={isLoading}
+            disabled={isLoading || isRecording}
           >
             <Camera className="h-7 w-7" />
           </Button>
-          <input 
+          <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
@@ -70,9 +71,9 @@ export function ChatInputArea({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={t("chatInput.placeholder")}
+              placeholder={isRecording ? t("chatInput.recording") : t("chatInput.placeholder")}
               className="w-full border-2 border-kerala-light/30 focus:border-kerala-primary text-lg p-4"
-              disabled={isLoading}
+              disabled={isLoading || isRecording}
             />
           </div>
 
@@ -80,13 +81,14 @@ export function ChatInputArea({
           <Button
             variant="outline"
             size="lg"
-            onClick={onVoiceInput}
-            className="flex-shrink-0 bg-kerala-primary text-white border-kerala-primary hover:bg-kerala-primary/90 p-4"
+            onClick={onVoiceInputToggle}
+            className={`flex-shrink-0 border-kerala-primary hover:bg-kerala-primary/90 p-4 ${
+              isRecording ? 'bg-red-500 text-white' : 'bg-kerala-primary text-white'
+            }`}
             disabled={isLoading}
           >
             <Mic className="h-7 w-7" />
           </Button>
-
           {/* Send Button */}
           <Button
             onClick={handleSend}

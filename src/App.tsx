@@ -17,7 +17,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 
 
 import { supabase, SUPABASE_URL } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +36,9 @@ const App = () => {
   const navigate = useNavigate();
   const { isAnalyzing, analysisResult, analysisError, performAnalysis } = useImageAnalysis();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
 
   const handleTabChange = (tab: string, chatId?: string) => {
     setActiveTab(tab);
@@ -159,8 +162,85 @@ const App = () => {
     };
   };
 
-  const handleVoiceInput = () => {
-    // TODO: Implement voice input
+  const handleStartVoiceInput = async () => {
+    console.log("handleStartVoiceInput called. isRecording:", isRecording);
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Your browser does not support voice recording.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder.current = new MediaRecorder(stream);
+      audioChunks.current = [];
+
+      mediaRecorder.current.ondataavailable = (event) => {
+        audioChunks.current.push(event.data);
+      };
+
+      mediaRecorder.current.onstop = async () => {
+        console.log("MediaRecorder onstop event fired.");
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const audioDataUrl = reader.result as string;
+          setIsLoading(true);
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) throw new Error("User not authenticated.");
+
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/speech-to-text`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ audioDataUrl }),
+            });
+
+            const { transcript, error } = await response.json();
+
+            if (error) throw new Error(error);
+            if (transcript) {
+              handleSendMessage(transcript);
+            }
+          } catch (error) {
+            console.error("Error during speech-to-text:", error);
+            addMessage({ type: 'bot', content: 'Sorry, I could not understand the audio.' });
+          } finally {
+            setIsLoading(false);
+          }
+        };
+      };
+
+      mediaRecorder.current.start();
+      setIsRecording(true);
+      console.log("Recording started. isRecording set to true.");
+    } catch (err) {
+      console.error("Error getting media stream:", err);
+      alert("Could not access your microphone. Please check permissions.");
+    }
+  };
+
+  const handleStopVoiceInput = () => {
+    console.log("handleStopVoiceInput called. isRecording:", isRecording, "mediaRecorder state:", mediaRecorder.current?.state);
+    if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
+      mediaRecorder.current.stop();
+      setIsRecording(false);
+      console.log("Recording stopped. isRecording set to false.");
+    } else {
+      console.log("MediaRecorder not in 'recording' state or not initialized.");
+    }
+  };
+
+  const handleVoiceInputToggle = () => {
+    console.log("handleVoiceInputToggle called. Current isRecording:", isRecording);
+    if (isRecording) {
+      handleStopVoiceInput();
+    } else {
+      handleStartVoiceInput();
+    }
   };
 
   return (
@@ -187,7 +267,9 @@ const App = () => {
             <ChatInputArea
               onSendMessage={handleSendMessage}
               onImageSelect={handleImageSelect}
-              onVoiceInput={handleVoiceInput}
+              onVoiceInputToggle={handleVoiceInputToggle}
+              isRecording={isRecording}
+              isLoading={isLoading}
             />
           )}
         </div>
