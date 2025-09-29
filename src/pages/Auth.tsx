@@ -64,7 +64,6 @@ const Auth = () => {
       } else {
         toast({
           title: t('auth.signup.success'),
-          description: t('auth.signup.verify'),
         });
       }
     } catch (error) {
